@@ -1,0 +1,11 @@
+body {
+  background-color: #f5f6fa;
+}
+
+.sidebar {
+  width: 240px;
+}
+
+.layout-main {
+  min-width: 0;
+}
