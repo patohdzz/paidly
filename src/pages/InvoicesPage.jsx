@@ -4,8 +4,7 @@ import InvoiceTable from "../components/InvoiceTable";
 import EmptyState from "../components/EmptyState";
 import SearchBar from "../components/SearchBar";
 import FilterSelect from "../components/FilterSelect";
-import { invoices } from "../data/invoices";
-import { clients } from "../data/clients";
+import { useData } from "../hooks/useData";
 import { getClientName } from "../utils/clientUtils";
 import { getStatus, getTotal } from "../utils/invoiceUtils";
 
@@ -48,6 +47,8 @@ function sortInvoices(list, sortBy, clients) {
 }
 
 function InvoicesPage() {
+  const { invoices, clients } = useData();
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState("newest");

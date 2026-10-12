@@ -1,8 +1,7 @@
 import Header from "../components/Header";
 import KpiCard from "../components/KpiCard";
 import StatusBadge from "../components/StatusBadge";
-import { invoices } from "../data/invoices";
-import { clients } from "../data/clients";
+import { useData } from "../hooks/useData";
 import { getClientName } from "../utils/clientUtils";
 import {
   getDashboardStats,
@@ -13,6 +12,8 @@ import {
 } from "../utils/invoiceUtils";
 
 function DashboardPage() {
+  const { invoices, clients } = useData();
+
   const stats = getDashboardStats(invoices);
 
   const recentInvoices = [...invoices]
@@ -58,28 +59,32 @@ function DashboardPage() {
         <div className="card-body">
           <h2 className="h5 mb-3">Recent invoices</h2>
 
-          <ul className="list-group list-group-flush">
-            {recentInvoices.map((invoice) => (
-              <li
-                key={invoice.id}
-                className="list-group-item d-flex justify-content-between align-items-center px-0"
-              >
-                <div>
-                  <div className="fw-semibold">{invoice.number}</div>
-                  <div className="small text-secondary">
-                    {getClientName(clients, invoice.clientId)} ·{" "}
-                    {formatDate(invoice.issueDate)}
+          {recentInvoices.length === 0 ? (
+            <p className="text-secondary small mb-0">No invoices yet.</p>
+          ) : (
+            <ul className="list-group list-group-flush">
+              {recentInvoices.map((invoice) => (
+                <li
+                  key={invoice.id}
+                  className="list-group-item d-flex justify-content-between align-items-center px-0"
+                >
+                  <div>
+                    <div className="fw-semibold">{invoice.number}</div>
+                    <div className="small text-secondary">
+                      {getClientName(clients, invoice.clientId)} ·{" "}
+                      {formatDate(invoice.issueDate)}
+                    </div>
                   </div>
-                </div>
-                <div className="d-flex align-items-center gap-3">
-                  <span className="fw-semibold">
-                    {formatCurrency(getTotal(invoice))}
-                  </span>
-                  <StatusBadge status={getStatus(invoice)} />
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <div className="d-flex align-items-center gap-3">
+                    <span className="fw-semibold">
+                      {formatCurrency(getTotal(invoice))}
+                    </span>
+                    <StatusBadge status={getStatus(invoice)} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </>
