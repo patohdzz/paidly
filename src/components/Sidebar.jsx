@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useData } from "../hooks/useData";
+import ConfirmDialog from "./ConfirmDialog";
 
 const navItems = [
   { label: "Dashboard", to: "/" },
@@ -10,14 +12,11 @@ const navItems = [
 
 function Sidebar() {
   const { dispatch } = useData();
+  const [confirmingReset, setConfirmingReset] = useState(false);
 
   function handleReset() {
-    const confirmed = window.confirm(
-      "Reset all data to the demo data? Your changes will be lost."
-    );
-    if (confirmed) {
-      dispatch({ type: "RESET" });
-    }
+    dispatch({ type: "RESET" });
+    setConfirmingReset(false);
   }
 
   return (
@@ -45,10 +44,20 @@ function Sidebar() {
       <button
         type="button"
         className="btn btn-outline-light btn-sm mt-auto"
-        onClick={handleReset}
+        onClick={() => setConfirmingReset(true)}
       >
         Reset demo data
       </button>
+
+      {confirmingReset && (
+        <ConfirmDialog
+          title="Reset demo data?"
+          message="All clients, services, and invoices will be replaced with the demo data. Your changes will be lost."
+          confirmLabel="Reset"
+          onConfirm={handleReset}
+          onCancel={() => setConfirmingReset(false)}
+        />
+      )}
     </aside>
   );
 }
