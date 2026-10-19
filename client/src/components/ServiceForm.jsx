@@ -1,7 +1,25 @@
 import { useState } from "react";
-import { unitOptions } from "../utils/serviceUtils";
+import {
+  categoryOptions,
+  formatDuration,
+  unitOptions,
+} from "../utils/serviceUtils";
 
-const emptyService = { name: "", unit: "hr", rate: "" };
+// code for when clicking "Add Service"
+
+const durationOptions = [30, 60, 90, 120, 180, 240, 360, 480];
+
+const DESCRIPTION_MAX = 300;
+
+const emptyService = {
+  name: "",
+  category: categoryOptions[0],
+  unit: "flat",
+  rate: "",
+  durationMinutes: 60,
+  description: "",
+  active: true,
+};
 
 function validate(values, existingServices) {
   const errors = {};
@@ -26,6 +44,13 @@ function validate(values, existingServices) {
     errors.rate = "Rate must be a number greater than 0.";
   }
 
+  const description = values.description.trim();
+  if (!description) {
+    errors.description = "Description is required.";
+  } else if (description.length > DESCRIPTION_MAX) {
+    errors.description = `Description must be ${DESCRIPTION_MAX} characters or less.`;
+  }
+
   return errors;
 }
 
@@ -37,14 +62,17 @@ function ServiceForm({
   onCancel,
 }) {
   const [values, setValues] = useState({
+    ...emptyService,
     ...initialValues,
     rate: String(initialValues.rate),
   });
   const [errors, setErrors] = useState({});
 
   function handleChange(e) {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
+
+    setValues((prev) => ({ ...prev, [name]: newValue }));
 
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -63,7 +91,9 @@ function ServiceForm({
     onSubmit({
       ...values,
       name: values.name.trim(),
+      description: values.description.trim(),
       rate: Math.round(Number(values.rate) * 100) / 100,
+      durationMinutes: Number(values.durationMinutes),
     });
   }
 
@@ -81,14 +111,54 @@ function ServiceForm({
             className={`form-control ${errors.name ? "is-invalid" : ""}`}
             value={values.name}
             onChange={handleChange}
-            placeholder="e.g. Editing"
+            placeholder="e.g. Leaky Faucet Repair"
           />
           {errors.name && (
             <div className="invalid-feedback">{errors.name}</div>
           )}
         </div>
 
-        <div className="row g-3">
+        <div className="row g-3 mb-3">
+          <div className="col-12 col-sm-6">
+            <label htmlFor="service-category" className="form-label">
+              Category
+            </label>
+            <select
+              id="service-category"
+              name="category"
+              className="form-select"
+              value={values.category}
+              onChange={handleChange}
+            >
+              {categoryOptions.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-12 col-sm-6">
+            <label htmlFor="service-duration" className="form-label">
+              Typical duration
+            </label>
+            <select
+              id="service-duration"
+              name="durationMinutes"
+              className="form-select"
+              value={values.durationMinutes}
+              onChange={handleChange}
+            >
+              {durationOptions.map((minutes) => (
+                <option key={minutes} value={minutes}>
+                  {formatDuration(minutes)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="row g-3 mb-3">
           <div className="col-12 col-sm-6">
             <label htmlFor="service-unit" className="form-label">
               Billed
@@ -131,6 +201,49 @@ function ServiceForm({
               )}
             </div>
           </div>
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="service-description" className="form-label">
+            Description
+          </label>
+          <textarea
+            id="service-description"
+            name="description"
+            rows="3"
+            maxLength={DESCRIPTION_MAX}
+            className={`form-control ${errors.description ? "is-invalid" : ""}`}
+            value={values.description}
+            onChange={handleChange}
+            placeholder="What's included in this service?"
+          />
+          <div className="d-flex justify-content-between">
+            {errors.description ? (
+              <div className="invalid-feedback d-block">
+                {errors.description}
+              </div>
+            ) : (
+              <span />
+            )}
+            <small className="text-muted">
+              {values.description.length}/{DESCRIPTION_MAX}
+            </small>
+          </div>
+        </div>
+
+        <div className="form-check form-switch">
+          <input
+            id="service-active"
+            name="active"
+            type="checkbox"
+            role="switch"
+            className="form-check-input"
+            checked={values.active}
+            onChange={handleChange}
+          />
+          <label htmlFor="service-active" className="form-check-label">
+            Active (customers can book this service)
+          </label>
         </div>
       </div>
 
