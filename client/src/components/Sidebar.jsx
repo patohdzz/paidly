@@ -1,23 +1,34 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import { useData } from "../hooks/useData";
 import ConfirmDialog from "./ConfirmDialog";
 
 const navItems = [
-  { label: "Dashboard", to: "/" },
-  { label: "Browse Services", to: "/services" },
-  { label: "Invoices", to: "/invoices" },
-  { label: "Clients", to: "/clients" },
-  { label: "Manage Services", to: "/admin/services" },
+  { label: "Dashboard", to: "/", roles: ["admin"] },
+  { label: "Browse Services", to: "/services", roles: ["guest", "customer", "admin"] },
+  { label: "Invoices", to: "/invoices", roles: ["admin"] },
+  { label: "Clients", to: "/clients", roles: ["admin"] },
+  { label: "Manage Services", to: "/admin/services", roles: ["admin"] },
 ];
 
 function Sidebar() {
+  const { user, isLoggedIn, isAdmin, logout } = useAuth();
   const { dispatch } = useData();
+  const navigate = useNavigate();
   const [confirmingReset, setConfirmingReset] = useState(false);
+
+  const role = user?.role ?? "guest";
+  const visibleItems = navItems.filter((item) => item.roles.includes(role));
 
   function handleReset() {
     dispatch({ type: "RESET" });
     setConfirmingReset(false);
+  }
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
   }
 
   return (
@@ -26,7 +37,7 @@ function Sidebar() {
 
       <nav>
         <ul className="nav nav-pills flex-column gap-1">
-          {navItems.map((item) => (
+          {visibleItems.map((item) => (
             <li className="nav-item" key={item.to}>
               <NavLink
                 to={item.to}
@@ -42,13 +53,44 @@ function Sidebar() {
         </ul>
       </nav>
 
-      <button
-        type="button"
-        className="btn btn-outline-light btn-sm mt-auto"
-        onClick={() => setConfirmingReset(true)}
-      >
-        Reset demo data
-      </button>
+      <div className="mt-auto d-flex flex-column gap-2">
+        {isAdmin && (
+          <button
+            type="button"
+            className="btn btn-outline-light btn-sm"
+            onClick={() => setConfirmingReset(true)}
+          >
+            Reset demo data
+          </button>
+        )}
+
+        {isLoggedIn ? (
+          <div className="border-top border-secondary pt-3">
+            <div className="px-2 mb-2">
+              <div className="fw-semibold text-truncate">{user.name}</div>
+              <div className="small text-white-50 text-capitalize">
+                {user.role}
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn btn-light btn-sm w-100"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </div>
+        ) : (
+          <>
+            <Link to="/login" className="btn btn-light btn-sm">
+              Log in
+            </Link>
+            <Link to="/register" className="btn btn-outline-light btn-sm">
+              Sign up
+            </Link>
+          </>
+        )}
+      </div>
 
       {confirmingReset && (
         <ConfirmDialog

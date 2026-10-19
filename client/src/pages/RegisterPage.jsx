@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import { PASSWORD_MIN, validateRegister } from "../utils/authUtils";
 
 const emptyRegister = {
@@ -30,6 +31,8 @@ const fields = [
 function RegisterPage() {
   const navigate = useNavigate();
 
+  const { register } = useAuth();
+
   const [values, setValues] = useState(emptyRegister);
   const [errors, setErrors] = useState({});
 
@@ -42,7 +45,7 @@ function RegisterPage() {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const newErrors = validateRegister(values);
@@ -51,7 +54,7 @@ function RegisterPage() {
       return;
     }
 
-    // Temporary: will call the backend register API in a later step.
+    await register(values);
     navigate("/services");
   }
 

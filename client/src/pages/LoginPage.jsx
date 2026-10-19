@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import { validateLogin } from "../utils/authUtils";
 
 const emptyLogin = { email: "", password: "" };
 
 function LoginPage() {
   const navigate = useNavigate();
+
+  const { login } = useAuth();
 
   const [values, setValues] = useState(emptyLogin);
   const [errors, setErrors] = useState({});
@@ -19,7 +22,7 @@ function LoginPage() {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const newErrors = validateLogin(values);
@@ -28,8 +31,8 @@ function LoginPage() {
       return;
     }
 
-    // Temporary: will call the backend login API in a later step.
-    navigate("/services");
+    const loggedInUser = await login(values);
+    navigate(loggedInUser.role === "admin" ? "/" : "/services");
   }
 
   return (
