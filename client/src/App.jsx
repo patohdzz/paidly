@@ -8,6 +8,8 @@ import ClientsPage from "./pages/ClientsPage";
 import ServicesPage from "./pages/ServicesPage";
 import BrowseServicesPage from "./pages/BrowseServicesPage";
 import ServiceDetailsPage from "./pages/ServiceDetailsPage";
+import BookServicePage from "./pages/BookServicePage";
+import MyBookingsPage from "./pages/MyBookingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -25,6 +27,12 @@ function App() {
         <Route index element={<HomePage />} />
         <Route path="services" element={<BrowseServicesPage />} />
         <Route path="services/:serviceId" element={<ServiceDetailsPage />} />
+
+        {/* Customer-only pages */}
+        <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
+          <Route path="services/:serviceId/book" element={<BookServicePage />} />
+          <Route path="my/bookings" element={<MyBookingsPage />} />
+        </Route>
 
         {/* Admin-only pages */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

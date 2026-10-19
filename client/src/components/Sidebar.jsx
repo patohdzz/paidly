@@ -7,6 +7,7 @@ import ConfirmDialog from "./ConfirmDialog";
 const navItems = [
   { label: "Dashboard", to: "/", roles: ["admin"] },
   { label: "Browse Services", to: "/services", roles: ["guest", "customer", "admin"] },
+  { label: "My Bookings", to: "/my/bookings", roles: ["customer"] },
   { label: "Invoices", to: "/invoices", roles: ["admin"] },
   { label: "Clients", to: "/clients", roles: ["admin"] },
   { label: "Manage Services", to: "/admin/services", roles: ["admin"] },

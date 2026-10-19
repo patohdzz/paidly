@@ -13,3 +13,7 @@ body {
 .auth-card {
   max-width: 420px;
 }
+
+.booking-success {
+  max-width: 520px;
+}

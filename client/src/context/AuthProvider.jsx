@@ -36,7 +36,7 @@ function AuthProvider({ children }) {
     const cleanEmail = email.trim().toLowerCase();
 
     const loggedInUser = {
-      id: crypto.randomUUID(),
+      id: `user-${cleanEmail}`,
       name: nameFromEmail(cleanEmail),
       email: cleanEmail,
       role: cleanEmail === DEMO_ADMIN_EMAIL ? "admin" : "customer",
@@ -48,10 +48,12 @@ function AuthProvider({ children }) {
 
   // TEMPORARY: fake register. Will call POST /api/auth/register later.
   async function register({ name, email }) {
+           const cleanEmail = email.trim().toLowerCase();
+
     const newUser = {
-      id: crypto.randomUUID(),
+      id: `user-${cleanEmail}`,
       name: name.trim(),
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       role: "customer",
     };
 

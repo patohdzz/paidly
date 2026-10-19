@@ -1,15 +1,16 @@
 import { clients } from "../data/clients";
 import { services } from "../data/services";
 import { invoices } from "../data/invoices";
+import { bookings } from "../data/bookings";
 
 export const STORAGE_KEY = "paidly-data";
 
-export const demoData = { clients, services, invoices };
+export const demoData = { clients, services, invoices, bookings };
 
 export function loadInitialData() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : demoData;
+    return saved ? { ...demoData, ...JSON.parse(saved) } : demoData;
   } catch {
     return demoData;
   }
