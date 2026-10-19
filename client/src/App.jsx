@@ -1,7 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import AuthLayout from "./components/AuthLayout";
-import DashboardPage from "./pages/DashboardPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import HomePage from "./pages/HomePage";
 import InvoicesPage from "./pages/InvoicesPage";
 import ClientsPage from "./pages/ClientsPage";
 import ServicesPage from "./pages/ServicesPage";
@@ -20,12 +21,18 @@ function App() {
       </Route>
 
       <Route element={<Layout />}>
-        <Route index element={<DashboardPage />} />
+        {/* Public pages: anyone can see these */}
+        <Route index element={<HomePage />} />
         <Route path="services" element={<BrowseServicesPage />} />
         <Route path="services/:serviceId" element={<ServiceDetailsPage />} />
-        <Route path="invoices" element={<InvoicesPage />} />
-        <Route path="clients" element={<ClientsPage />} />
-        <Route path="admin/services" element={<ServicesPage />} />
+
+        {/* Admin-only pages */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="invoices" element={<InvoicesPage />} />
+          <Route path="clients" element={<ClientsPage />} />
+          <Route path="admin/services" element={<ServicesPage />} />
+        </Route>
+
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

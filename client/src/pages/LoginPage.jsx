@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { validateLogin } from "../utils/authUtils";
 
@@ -9,6 +9,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const { login } = useAuth();
+  const location = useLocation();
 
   const [values, setValues] = useState(emptyLogin);
   const [errors, setErrors] = useState({});
@@ -32,7 +33,8 @@ function LoginPage() {
     }
 
     const loggedInUser = await login(values);
-    navigate(loggedInUser.role === "admin" ? "/" : "/services");
+    const defaultPage = loggedInUser.role === "admin" ? "/" : "/services";
+    navigate(location.state?.from ?? defaultPage, { replace: true });
   }
 
   return (
