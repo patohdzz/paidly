@@ -4,6 +4,7 @@ import DashboardPage from "./pages/DashboardPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import ClientsPage from "./pages/ClientsPage";
 import ServicesPage from "./pages/ServicesPage";
+import BrowseServicesPage from "./pages/BrowseServicesPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
@@ -11,9 +12,10 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<DashboardPage />} />
+        <Route path="services" element={<BrowseServicesPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="clients" element={<ClientsPage />} />
-        <Route path="services" element={<ServicesPage />} />
+        <Route path="admin/services" element={<ServicesPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

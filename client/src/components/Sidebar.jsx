@@ -5,9 +5,10 @@ import ConfirmDialog from "./ConfirmDialog";
 
 const navItems = [
   { label: "Dashboard", to: "/" },
+  { label: "Browse Services", to: "/services" },
   { label: "Invoices", to: "/invoices" },
   { label: "Clients", to: "/clients" },
-  { label: "Services", to: "/services" },
+  { label: "Manage Services", to: "/admin/services" },
 ];
 
 function Sidebar() {
