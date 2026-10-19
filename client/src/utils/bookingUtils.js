@@ -115,3 +115,25 @@ export function toTimeInput(isoString) {
   const date = new Date(isoString);
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+export const bookingStatusFilterOptions = [
+  { value: "all", label: "All statuses" },
+  { value: "pending", label: "Pending" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
+// Which status changes the admin is allowed to make from each status.
+export const adminStatusActions = {
+  pending: [
+    { status: "confirmed", label: "Confirm", variant: "success" },
+    { status: "cancelled", label: "Cancel", variant: "danger" },
+  ],
+  confirmed: [
+    { status: "completed", label: "Complete", variant: "success" },
+    { status: "cancelled", label: "Cancel", variant: "danger" },
+  ],
+  completed: [],
+  cancelled: [],
+};

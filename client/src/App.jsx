@@ -10,6 +10,7 @@ import BrowseServicesPage from "./pages/BrowseServicesPage";
 import ServiceDetailsPage from "./pages/ServiceDetailsPage";
 import BookServicePage from "./pages/BookServicePage";
 import MyBookingsPage from "./pages/MyBookingsPage";
+import AdminBookingsPage from "./pages/AdminBookingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -39,6 +40,7 @@ function App() {
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="admin/services" element={<ServicesPage />} />
+          <Route path="admin/bookings" element={<AdminBookingsPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
