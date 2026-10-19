@@ -7,10 +7,10 @@ export const invoices = [
     dueDate: "2026-08-05",
     status: "Paid",
     taxRate: 8.25,
-    notes: "Summer brand campaign.",
+    notes: "Master bathroom refresh.",
     lineItems: [
-      { id: "li1", serviceId: "s1", description: "Brand video shoot", qty: 2, rate: 1500 },
-      { id: "li2", serviceId: "s2", description: "Edit and revisions", qty: 20, rate: 85 },
+      { id: "li1", serviceId: "s1", description: "Bathroom sink faucet repair", qty: 1, rate: 125 },
+      { id: "li2", serviceId: "s4", description: "Master shower recaulk", qty: 1, rate: 140 },
     ],
   },
   {
@@ -21,10 +21,10 @@ export const invoices = [
     dueDate: "2026-08-13",
     status: "Paid",
     taxRate: 8.25,
-    notes: "",
+    notes: "Rental unit turnover.",
     lineItems: [
-      { id: "li1", serviceId: "s4", description: "Gym exterior aerials", qty: 1, rate: 600 },
-      { id: "li2", serviceId: "s2", description: "Promo edit", qty: 8, rate: 85 },
+      { id: "li1", serviceId: "s3", description: "Bedroom wall patches (2)", qty: 2, rate: 180 },
+      { id: "li2", serviceId: "s8", description: "Repaint patched walls", qty: 4, rate: 65 },
     ],
   },
   {
@@ -35,11 +35,11 @@ export const invoices = [
     dueDate: "2026-08-27",
     status: "Paid",
     taxRate: 8.25,
-    notes: "Property listing video.",
+    notes: "Unit 4B tenant requests.",
     lineItems: [
-      { id: "li1", serviceId: "s1", description: "Listing shoot", qty: 1, rate: 1500 },
-      { id: "li2", serviceId: "s3", description: "Color grade", qty: 10, rate: 95 },
-      { id: "li3", serviceId: "s5", description: "Gimbal and lighting kit", qty: 1, rate: 250 },
+      { id: "li1", serviceId: "s2", description: "Running toilet fix", qty: 1, rate: 150 },
+      { id: "li2", serviceId: "s9", description: "Sticking front door", qty: 1, rate: 110 },
+      { id: "li3", serviceId: "s5", description: "Hallway light fixture", qty: 1, rate: 120 },
     ],
   },
   {
@@ -50,10 +50,10 @@ export const invoices = [
     dueDate: "2026-09-09",
     status: "Sent",
     taxRate: 8.25,
-    notes: "Social media cutdowns.",
+    notes: "Living room upgrades.",
     lineItems: [
-      { id: "li1", serviceId: "s2", description: "Social cutdowns (6)", qty: 16, rate: 85 },
-      { id: "li2", serviceId: "s6", description: "Animated logo intro", qty: 6, rate: 110 },
+      { id: "li1", serviceId: "s7", description: "Living room ceiling fan", qty: 1, rate: 175 },
+      { id: "li2", serviceId: "s10", description: "65-inch TV mount", qty: 1, rate: 130 },
     ],
   },
   {
@@ -64,10 +64,9 @@ export const invoices = [
     dueDate: "2026-09-17",
     status: "Sent",
     taxRate: 8.25,
-    notes: "Attorney headshot and bio videos.",
+    notes: "",
     lineItems: [
-      { id: "li1", serviceId: "s1", description: "Office shoot", qty: 1, rate: 1500 },
-      { id: "li2", serviceId: "s5", description: "Lighting and audio kit", qty: 2, rate: 250 },
+      { id: "li1", serviceId: "s6", description: "Shelving and furniture assembly", qty: 3, rate: 75 },
     ],
   },
   {
@@ -80,7 +79,8 @@ export const invoices = [
     taxRate: 8.25,
     notes: "",
     lineItems: [
-      { id: "li1", serviceId: "s2", description: "Class highlight reel", qty: 12, rate: 85 },
+      { id: "li1", serviceId: "s1", description: "Kitchen faucet cartridge", qty: 1, rate: 125 },
+      { id: "li2", serviceId: "s2", description: "Toilet flapper replacement", qty: 1, rate: 150 },
     ],
   },
   {
@@ -91,10 +91,10 @@ export const invoices = [
     dueDate: "2026-10-10",
     status: "Sent",
     taxRate: 8.25,
-    notes: "Wedding weekend coverage.",
+    notes: "Guest room makeover.",
     lineItems: [
-      { id: "li1", serviceId: "s1", description: "Event coverage", qty: 3, rate: 1500 },
-      { id: "li2", serviceId: "s4", description: "Venue aerials", qty: 1, rate: 600 },
+      { id: "li1", serviceId: "s8", description: "Guest room walls and trim", qty: 8, rate: 65 },
+      { id: "li2", serviceId: "s5", description: "New pendant light", qty: 1, rate: 120 },
     ],
   },
   {
@@ -105,10 +105,10 @@ export const invoices = [
     dueDate: "2026-10-21",
     status: "Sent",
     taxRate: 8.25,
-    notes: "",
+    notes: "Units 2A and 3C.",
     lineItems: [
-      { id: "li1", serviceId: "s3", description: "Color grade (3 listings)", qty: 8, rate: 95 },
-      { id: "li2", serviceId: "s6", description: "Lower thirds and titles", qty: 4, rate: 110 },
+      { id: "li1", serviceId: "s4", description: "Tub recaulk (2 units)", qty: 2, rate: 140 },
+      { id: "li2", serviceId: "s3", description: "Doorknob hole patch", qty: 1, rate: 180 },
     ],
   },
   {
@@ -119,9 +119,9 @@ export const invoices = [
     dueDate: "2026-10-28",
     status: "Draft",
     taxRate: 8.25,
-    notes: "Waiting on final cut approval.",
+    notes: "Waiting on fixture delivery.",
     lineItems: [
-      { id: "li1", serviceId: "s2", description: "Bio video edits", qty: 20, rate: 85 },
+      { id: "li1", serviceId: "s7", description: "Bedroom ceiling fans (2)", qty: 2, rate: 175 },
     ],
   },
   {
@@ -134,8 +134,8 @@ export const invoices = [
     taxRate: 8.25,
     notes: "",
     lineItems: [
-      { id: "li1", serviceId: "s5", description: "Camera package rental", qty: 2, rate: 250 },
-      { id: "li2", serviceId: "s4", description: "Aerial b-roll", qty: 1, rate: 600 },
+      { id: "li1", serviceId: "s9", description: "Closet door adjustment", qty: 1, rate: 110 },
+      { id: "li2", serviceId: "s6", description: "Odd jobs list", qty: 2, rate: 75 },
     ],
   },
 ];
