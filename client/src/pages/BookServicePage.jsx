@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import { useAuth } from "../hooks/useAuth";
 import { useData } from "../hooks/useData";
@@ -18,9 +18,14 @@ const emptyBooking = { date: "", time: "", address: "", notes: "" };
 function BookServicePage() {
   const { serviceId } = useParams();
   const { user } = useAuth();
-  const { services, bookings, dispatch } = useData();
 
-  const [values, setValues] = useState(emptyBooking);
+  const { services, bookings, dispatch } = useData();
+  const location = useLocation();
+  const [values, setValues] = useState({
+    ...emptyBooking,
+    notes: (location.state?.notes ?? "").slice(0, NOTES_MAX),
+  });
+
   const [errors, setErrors] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
 

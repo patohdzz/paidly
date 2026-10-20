@@ -10,6 +10,7 @@ import BrowseServicesPage from "./pages/BrowseServicesPage";
 import ServiceDetailsPage from "./pages/ServiceDetailsPage";
 import BookServicePage from "./pages/BookServicePage";
 import MyBookingsPage from "./pages/MyBookingsPage";
+import QuoteBuilderPage from "./pages/QuoteBuilderPage";
 import AdminBookingsPage from "./pages/AdminBookingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -33,6 +34,7 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
           <Route path="services/:serviceId/book" element={<BookServicePage />} />
           <Route path="my/bookings" element={<MyBookingsPage />} />
+          <Route path="quote" element={<QuoteBuilderPage />} />
         </Route>
 
         {/* Admin-only pages */}
