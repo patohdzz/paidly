@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import mongoose from "mongoose";
 
 const app = express();
 
@@ -14,8 +15,18 @@ app.use(cors({ origin: process.env.CLIENT_ORIGIN || "http://localhost:5173" }));
 app.use(express.json({ limit: "10kb" }));
 
 // Health check: a simple "are you alive?" route
+const dbStates = {
+  0: "disconnected",
+  1: "connected",
+  2: "connecting",
+  3: "disconnecting",
+};
+
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
+  res.json({
+    status: "ok",
+    database: dbStates[mongoose.connection.readyState] ?? "unknown",
+  });
 });
 
 // 404: runs only if no route above matched
