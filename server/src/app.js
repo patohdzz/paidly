@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import mongoose from "mongoose";
+import serviceRoutes from "./routes/serviceRoutes.js";
 
 const app = express();
 
@@ -28,6 +29,12 @@ app.get("/api/health", (req, res) => {
     database: dbStates[mongoose.connection.readyState] ?? "unknown",
   });
 });
+
+// Feature routes!!!!!
+app.use("/api/services", serviceRoutes);
+
+
+
 
 // 404: runs only if no route above matched
 app.use((req, res) => {
