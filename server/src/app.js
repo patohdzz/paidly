@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 
 const app = express();
@@ -34,6 +35,7 @@ app.get("/api/health", (req, res) => {
 // Feature routes
 app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // 404: runs only if no route above matched
 app.use((req, res) => {
