@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import mongoose from "mongoose";
+import authRoutes from "./routes/authRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 
 const app = express();
@@ -30,11 +31,9 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Feature routes!!!!!
+// Feature routes
+app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
-
-
-
 
 // 404: runs only if no route above matched
 app.use((req, res) => {
@@ -46,6 +45,21 @@ app.use((err, req, res, next) => {
   if (err.type === "entity.parse.failed") {
     return res.status(400).json({ error: "Invalid JSON in request body" });
   }
+
+  // Mongoose schema rules failed
+  if (err.name === "ValidationError") {
+    const details = Object.values(err.errors).map((e) => ({
+      field: e.path,
+      message: e.message,
+    }));
+    return res.status(400).json({ error: "Validation failed", details });
+  }
+
+  // Duplicate value in a unique field (e.g. same email signed up twice at once)
+  if (err.code === 11000) {
+    return res.status(409).json({ error: "That value is already in use" });
+  }
+
   console.error(err);
   res.status(500).json({ error: "Something went wrong" });
 });
