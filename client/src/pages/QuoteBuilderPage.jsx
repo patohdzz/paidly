@@ -1,18 +1,10 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import QuoteResult from "../components/QuoteResult";
-import { useData } from "../hooks/useData";
-import { getMockQuote } from "../api/mockQuoteApi";
-import {
-  QUOTE_MAX,
-  buildEstimate,
-  exampleProblems,
-  validateQuoteRequest,
-} from "../utils/quoteUtils";
+import { aiApi } from "../api/paidlyApi";
+import { QUOTE_MAX, exampleProblems, validateQuoteRequest } from "../utils/quoteUtils";
 
 function QuoteBuilderPage() {
-  const { services } = useData();
-
   const [description, setDescription] = useState("");
   const [inputError, setInputError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -40,15 +32,14 @@ function QuoteBuilderPage() {
     setResult(null);
 
     try {
-      const aiResponse = await getMockQuote(description);
-      setResult({
-        summary: aiResponse.summary,
-        estimate: buildEstimate(aiResponse.suggestions, services),
-        description: description.trim(),
-      });
-    } catch {
+      // The server asks the AI, checks its answer, and calculates the prices.
+      const quote = await aiApi.quote(description.trim());
+      setResult({ ...quote, description: description.trim() });
+    } catch (err) {
       setRequestError(
-        "We couldn't build an estimate right now. Please try again, or browse our services."
+        err.status === 429 || err.status === 0
+          ? err.message
+          : "We couldn't build an estimate right now. Please try again, or browse our services."
       );
     } finally {
       setLoading(false);
@@ -153,6 +144,8 @@ function QuoteBuilderPage() {
             <QuoteResult
               summary={result.summary}
               estimate={result.estimate}
+              source={result.source}
+              disclaimer={result.disclaimer}
               description={result.description}
             />
           )}

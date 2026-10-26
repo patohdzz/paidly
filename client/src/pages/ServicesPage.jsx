@@ -1,22 +1,32 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import LoadingState from "../components/LoadingState";
 import Modal from "../components/Modal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ServiceForm from "../components/ServiceForm";
 import ServiceList from "../components/ServiceList";
-import { useData } from "../hooks/useData";
-import { countServiceUsage } from "../utils/serviceUtils";
+import { servicesApi } from "../api/paidlyApi";
+import { useApiData } from "../hooks/useApiData";
+
+const loadAllServices = (signal) => servicesApi.listAll(signal);
+
+// Only send the fields the server lets admins edit.
+function toServicePayload(values) {
+  const { name, category, unit, rate, durationMinutes, description, active } = values;
+  return { name, category, unit, rate, durationMinutes, description, active };
+}
 
 function ServicesPage() {
-  const { services, invoices, dispatch } = useData();
+  const { data, setData, loading, error, reload } = useApiData(loadAllServices);
 
   const [modal, setModal] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
-  const sortedServices = [...services].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
+  const services = data ?? [];
+  const sortedServices = [...services].sort((a, b) => a.name.localeCompare(b.name));
 
   function openAdd() {
     setModal({ mode: "add" });
@@ -30,61 +40,66 @@ function ServicesPage() {
     setModal(null);
   }
 
-  function handleSave(values) {
+  // Errors are shown inside the form, so let them bubble up.
+  async function handleSave(values) {
+    const payload = toServicePayload(values);
+
     if (modal.mode === "add") {
-      dispatch({
-        type: "ADD",
-        collection: "services",
-        item: { ...values, id: crypto.randomUUID() },
-      });
+      const created = await servicesApi.create(payload);
+      setData((list) => [...list, created]);
     } else {
-      dispatch({ type: "UPDATE", collection: "services", item: values });
+      const updated = await servicesApi.update(modal.service.id, payload);
+      setData((list) => list.map((s) => (s.id === updated.id ? updated : s)));
     }
     closeModal();
   }
 
-  function confirmDelete() {
-    dispatch({ type: "DELETE", collection: "services", id: deleting.id });
+  async function confirmDelete() {
+    const service = deleting;
     setDeleting(null);
+    setActionError(null);
+
+    try {
+      await servicesApi.remove(service.id);
+      setData((list) => list.filter((s) => s.id !== service.id));
+    } catch (err) {
+      setActionError(err.message);
+    }
   }
 
-  const deletingUsage = deleting ? countServiceUsage(invoices, deleting.id) : 0;
+  function renderContent() {
+    if (loading) {
+      return <LoadingState message="Loading services..." />;
+    }
 
-  const deleteMessage =
-    deletingUsage > 0
-      ? `${deleting.name} is used in ${deletingUsage} ${
-          deletingUsage === 1 ? "invoice" : "invoices"
-        }. Those invoices will keep their line items, but this service won't be available for new invoices.`
-      : `${deleting?.name} will be permanently deleted. This can't be undone.`;
+    if (error) {
+      return <ErrorState message={error.message} onRetry={reload} />;
+    }
+
+    if (services.length === 0) {
+      return (
+        <EmptyState
+          title="No services yet"
+          message="Add the services customers can book, like faucet repair or drywall patching."
+        >
+          <button type="button" className="btn btn-primary btn-sm" onClick={openAdd}>
+            Add Service
+          </button>
+        </EmptyState>
+      );
+    }
+
+    return <ServiceList services={sortedServices} onEdit={openEdit} onDelete={setDeleting} />;
+  }
 
   return (
     <>
-      <Header title="Services" actionLabel="Add Service" onAction={openAdd} />
+      <Header title="Manage Services" actionLabel="Add Service" onAction={openAdd} />
+
+      {actionError && <ErrorState message={actionError} />}
 
       <div className="card border-0 shadow-sm">
-        <div className="card-body">
-          {services.length === 0 ? (
-            <EmptyState
-              title="No services yet"
-              message="Add the services you bill for, like hourly editing or a flat-fee shoot."
-            >
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={openAdd}
-              >
-                Add Service
-              </button>
-            </EmptyState>
-          ) : (
-            <ServiceList
-              services={sortedServices}
-              invoices={invoices}
-              onEdit={openEdit}
-              onDelete={setDeleting}
-            />
-          )}
-        </div>
+        <div className="card-body">{renderContent()}</div>
       </div>
 
       {modal && (
@@ -105,7 +120,7 @@ function ServicesPage() {
       {deleting && (
         <ConfirmDialog
           title="Delete service?"
-          message={deleteMessage}
+          message={`${deleting.name} will be permanently deleted. Existing bookings keep their details. To hide it instead, edit it and turn off Active.`}
           confirmLabel="Delete Service"
           onConfirm={confirmDelete}
           onCancel={() => setDeleting(null)}

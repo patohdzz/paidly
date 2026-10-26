@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import LoadingState from "../components/LoadingState";
 import BookingCard from "../components/BookingCard";
 import Modal from "../components/Modal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import RescheduleForm from "../components/RescheduleForm";
-import { useAuth } from "../hooks/useAuth";
-import { useData } from "../hooks/useData";
+import { bookingsApi } from "../api/paidlyApi";
+import { useApiData } from "../hooks/useApiData";
 import { canChangeBooking, formatDateTime } from "../utils/bookingUtils";
 
 const tabs = [
@@ -15,15 +17,18 @@ const tabs = [
   { value: "past", label: "Past & cancelled" },
 ];
 
+const loadMyBookings = (signal) => bookingsApi.mine(signal);
+
 function MyBookingsPage() {
-  const { user } = useAuth();
-  const { bookings, dispatch } = useData();
+  const { data, setData, loading, error, reload } = useApiData(loadMyBookings);
 
   const [activeTab, setActiveTab] = useState("upcoming");
   const [rescheduling, setRescheduling] = useState(null);
   const [cancelling, setCancelling] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
-  const myBookings = bookings.filter((booking) => booking.userId === user.id);
+  // The server only sends bookings that belong to the logged-in customer.
+  const myBookings = data ?? [];
 
   const upcoming = myBookings
     .filter(canChangeBooking)
@@ -35,44 +40,39 @@ function MyBookingsPage() {
 
   const visibleBookings = activeTab === "upcoming" ? upcoming : past;
 
-  function handleReschedule(newScheduledAt) {
-    dispatch({
-      type: "UPDATE",
-      collection: "bookings",
-      item: { ...rescheduling, scheduledAt: newScheduledAt, status: "pending" },
-    });
+  function replaceBooking(updated) {
+    setData((list) => list.map((b) => (b.id === updated.id ? updated : b)));
+  }
+
+  // Errors are shown inside the reschedule form, so let them bubble up.
+  async function handleReschedule(newScheduledAt) {
+    const updated = await bookingsApi.reschedule(rescheduling.id, newScheduledAt);
+    replaceBooking(updated);
     setRescheduling(null);
   }
 
-  function confirmCancel() {
-    dispatch({
-      type: "UPDATE",
-      collection: "bookings",
-      item: { ...cancelling, status: "cancelled" },
-    });
-    setCancelling(null);
+  async function confirmCancel() {
+    setActionError(null);
+    try {
+      replaceBooking(await bookingsApi.cancel(cancelling.id));
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setCancelling(null);
+    }
   }
 
-  return (
-    <>
-      <Header title="My Bookings" />
+  function renderContent() {
+    if (loading) {
+      return <LoadingState message="Loading your bookings..." />;
+    }
 
-      <ul className="nav nav-pills mb-4">
-        {tabs.map((tab) => (
-          <li className="nav-item" key={tab.value}>
-            <button
-              type="button"
-              className={`nav-link ${activeTab === tab.value ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.value)}
-            >
-              {tab.label} (
-              {tab.value === "upcoming" ? upcoming.length : past.length})
-            </button>
-          </li>
-        ))}
-      </ul>
+    if (error) {
+      return <ErrorState message={error.message} onRetry={reload} />;
+    }
 
-      {visibleBookings.length === 0 ? (
+    if (visibleBookings.length === 0) {
+      return (
         <div className="card border-0 shadow-sm">
           {activeTab === "upcoming" ? (
             <EmptyState
@@ -90,19 +90,45 @@ function MyBookingsPage() {
             />
           )}
         </div>
-      ) : (
-        <div className="row g-3">
-          {visibleBookings.map((booking) => (
-            <div className="col-12 col-xl-6" key={booking.id}>
-              <BookingCard
-                booking={booking}
-                onReschedule={setRescheduling}
-                onCancel={setCancelling}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      );
+    }
+
+    return (
+      <div className="row g-3">
+        {visibleBookings.map((booking) => (
+          <div className="col-12 col-xl-6" key={booking.id}>
+            <BookingCard
+              booking={booking}
+              onReschedule={setRescheduling}
+              onCancel={setCancelling}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Header title="My Bookings" />
+
+      <ul className="nav nav-pills mb-4">
+        {tabs.map((tab) => (
+          <li className="nav-item" key={tab.value}>
+            <button
+              type="button"
+              className={`nav-link ${activeTab === tab.value ? "active" : ""}`}
+              onClick={() => setActiveTab(tab.value)}
+            >
+              {tab.label} ({tab.value === "upcoming" ? upcoming.length : past.length})
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      {actionError && <ErrorState message={actionError} />}
+
+      {renderContent()}
 
       {rescheduling && (
         <Modal
@@ -111,7 +137,6 @@ function MyBookingsPage() {
         >
           <RescheduleForm
             booking={rescheduling}
-            bookings={bookings}
             onSubmit={handleReschedule}
             onCancel={() => setRescheduling(null)}
           />

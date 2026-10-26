@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { detailsToErrors } from "../api/client";
 import {
   categoryOptions,
   formatDuration,
@@ -67,6 +68,8 @@ function ServiceForm({
     rate: String(initialValues.rate),
   });
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -79,7 +82,7 @@ function ServiceForm({
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const newErrors = validate(values, existingServices);
@@ -88,18 +91,37 @@ function ServiceForm({
       return;
     }
 
-    onSubmit({
-      ...values,
-      name: values.name.trim(),
-      description: values.description.trim(),
-      rate: Math.round(Number(values.rate) * 100) / 100,
-      durationMinutes: Number(values.durationMinutes),
-    });
+    setSubmitting(true);
+    setServerError(null);
+
+    try {
+      await onSubmit({
+        ...values,
+        name: values.name.trim(),
+        description: values.description.trim(),
+        rate: Math.round(Number(values.rate) * 100) / 100,
+        durationMinutes: Number(values.durationMinutes),
+      });
+    } catch (error) {
+      if (error.status === 409) {
+        setErrors({ name: "A service with this name already exists." });
+      } else if (error.details?.length > 0) {
+        setErrors(detailsToErrors(error.details));
+      } else {
+        setServerError(error.message);
+      }
+      setSubmitting(false);
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="modal-body">
+        {serverError && (
+          <div className="alert alert-danger py-2 small" role="alert">
+            {serverError}
+          </div>
+        )}
         <div className="mb-3">
           <label htmlFor="service-name" className="form-label">
             Service name
@@ -255,8 +277,8 @@ function ServiceForm({
         >
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary">
-          {submitLabel}
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
+          {submitting ? "Saving..." : submitLabel}
         </button>
       </div>
     </form>

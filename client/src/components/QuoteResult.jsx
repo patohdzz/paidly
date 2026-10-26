@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { formatCurrency } from "../utils/invoiceUtils";
 import { formatRate } from "../utils/serviceUtils";
 
-function QuoteResult({ summary, estimate, description }) {
+function QuoteResult({ summary, estimate, source, disclaimer, description }) {
   if (estimate.lineItems.length === 0) {
     return (
       <div className="card border-0 shadow-sm">
@@ -20,12 +20,21 @@ function QuoteResult({ summary, estimate, description }) {
   return (
     <div className="card border-0 shadow-sm">
       <div className="card-body p-4">
-        <h2 className="h5 mb-1">Your estimate</h2>
+        <div className="d-flex justify-content-between align-items-start gap-2 mb-1">
+          <h2 className="h5 mb-0">Your estimate</h2>
+          {source === "ai" ? (
+            <span className="badge bg-primary-subtle text-primary-emphasis">AI estimate</span>
+          ) : (
+            <span className="badge bg-secondary-subtle text-secondary-emphasis">
+              Quick estimate
+            </span>
+          )}
+        </div>
         <p className="text-secondary small mb-4">{summary}</p>
 
         <ul className="list-group list-group-flush mb-3">
           {estimate.lineItems.map((item) => (
-            <li className="list-group-item px-0" key={item.id}>
+            <li className="list-group-item px-0" key={item.serviceId}>
               <div className="d-flex justify-content-between gap-3">
                 <div>
                   <Link
@@ -40,9 +49,7 @@ function QuoteResult({ summary, estimate, description }) {
                   </div>
                 </div>
                 <div className="text-end">
-                  <div className="fw-semibold">
-                    {formatCurrency(item.lineTotal)}
-                  </div>
+                  <div className="fw-semibold">{formatCurrency(item.lineTotal)}</div>
                   <Link
                     to={`/services/${item.serviceId}/book`}
                     state={{ notes: description }}
@@ -58,9 +65,7 @@ function QuoteResult({ summary, estimate, description }) {
 
         <dl className="row small mb-0">
           <dt className="col-6 fw-normal text-secondary">Subtotal</dt>
-          <dd className="col-6 text-end mb-1">
-            {formatCurrency(estimate.subtotal)}
-          </dd>
+          <dd className="col-6 text-end mb-1">{formatCurrency(estimate.subtotal)}</dd>
           <dt className="col-6 fw-normal text-secondary">Estimated tax</dt>
           <dd className="col-6 text-end mb-1">{formatCurrency(estimate.tax)}</dd>
           <dt className="col-6 fs-6">Estimated total</dt>
@@ -70,9 +75,7 @@ function QuoteResult({ summary, estimate, description }) {
         </dl>
 
         <p className="small text-muted border-top pt-3 mt-3 mb-0">
-          This is an AI-assisted estimate based on our standard prices. AI can
-          make mistakes, so review each service before booking. Your technician
-          confirms the final price on site.
+          {disclaimer} AI can make mistakes, so please check each service.
         </p>
       </div>
     </div>

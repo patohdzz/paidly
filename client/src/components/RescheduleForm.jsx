@@ -8,12 +8,13 @@ import {
   validateBooking,
 } from "../utils/bookingUtils";
 
-function RescheduleForm({ booking, bookings, onSubmit, onCancel }) {
+function RescheduleForm({ booking, onSubmit, onCancel }) {
   const [values, setValues] = useState({
     date: toDateInput(booking.scheduledAt),
     time: toTimeInput(booking.scheduledAt),
   });
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -24,20 +25,26 @@ function RescheduleForm({ booking, bookings, onSubmit, onCancel }) {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
+    // Quick checks here; the server checks for double-booking.
     const newErrors = validateBooking(values, {
-      bookings,
+      bookings: [],
       durationMinutes: booking.durationMinutes,
-      ignoreId: booking.id,
     });
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    onSubmit(toScheduledAt(values.date, values.time));
+    setSubmitting(true);
+    try {
+      await onSubmit(toScheduledAt(values.date, values.time));
+    } catch (error) {
+      setErrors({ time: error.message });
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -100,8 +107,8 @@ function RescheduleForm({ booking, bookings, onSubmit, onCancel }) {
         >
           Keep current time
         </button>
-        <button type="submit" className="btn btn-primary">
-          Save new time
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
+          {submitting ? "Saving..." : "Save new time"}
         </button>
       </div>
     </form>

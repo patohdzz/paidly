@@ -4,21 +4,29 @@ import KpiCard from "../components/KpiCard";
 import SearchBar from "../components/SearchBar";
 import FilterSelect from "../components/FilterSelect";
 import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import LoadingState from "../components/LoadingState";
 import ConfirmDialog from "../components/ConfirmDialog";
 import AdminBookingTable from "../components/AdminBookingTable";
-import { useData } from "../hooks/useData";
+import { bookingsApi } from "../api/paidlyApi";
+import { useApiData } from "../hooks/useApiData";
 import {
   bookingStatusFilterOptions,
   formatDateTime,
   isUpcoming,
 } from "../utils/bookingUtils";
 
+const loadAllBookings = (signal) => bookingsApi.all(signal);
+
 function AdminBookingsPage() {
-  const { bookings, dispatch } = useData();
+  const { data, setData, loading, error, reload } = useApiData(loadAllBookings);
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [cancelling, setCancelling] = useState(null);
+  const [actionError, setActionError] = useState(null);
+
+  const bookings = data ?? [];
 
   const pendingCount = bookings.filter((b) => b.status === "pending").length;
   const upcomingConfirmedCount = bookings.filter(
@@ -39,12 +47,17 @@ function AdminBookingsPage() {
     )
     .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
 
-  function updateStatus(booking, newStatus) {
-    dispatch({
-      type: "UPDATE",
-      collection: "bookings",
-      item: { ...booking, status: newStatus },
-    });
+  async function updateStatus(booking, newStatus) {
+    setActionError(null);
+    try {
+      const updated =
+        newStatus === "cancelled"
+          ? await bookingsApi.cancel(booking.id)
+          : await bookingsApi.setStatus(booking.id, newStatus);
+      setData((list) => list.map((b) => (b.id === updated.id ? updated : b)));
+    } catch (err) {
+      setActionError(err.message);
+    }
   }
 
   function handleChangeStatus(booking, newStatus) {
@@ -55,14 +68,23 @@ function AdminBookingsPage() {
     updateStatus(booking, newStatus);
   }
 
-  function confirmCancel() {
-    updateStatus(cancelling, "cancelled");
+  async function confirmCancel() {
+    const booking = cancelling;
     setCancelling(null);
+    await updateStatus(booking, "cancelled");
   }
 
   function clearFilters() {
     setSearch("");
     setStatus("all");
+  }
+
+  if (loading) {
+    return <LoadingState message="Loading bookings..." />;
+  }
+
+  if (error) {
+    return <ErrorState message={error.message} onRetry={reload} />;
   }
 
   return (
@@ -85,6 +107,8 @@ function AdminBookingsPage() {
         </div>
       </div>
 
+      {actionError && <ErrorState message={actionError} />}
+
       <div className="card border-0 shadow-sm">
         <div className="card-body">
           <div className="row g-2 mb-3">
@@ -106,10 +130,7 @@ function AdminBookingsPage() {
           </div>
 
           {visibleBookings.length === 0 ? (
-            <EmptyState
-              title="No bookings found"
-              message="Try a different search or status."
-            >
+            <EmptyState title="No bookings found" message="Try a different search or status.">
               <button
                 type="button"
                 className="btn btn-outline-primary btn-sm"

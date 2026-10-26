@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
-import { useAuth } from "../hooks/useAuth";
-import { useData } from "../hooks/useData";
+import ErrorState from "../components/ErrorState";
+import LoadingState from "../components/LoadingState";
+import { bookingsApi, servicesApi } from "../api/paidlyApi";
+import { detailsToErrors } from "../api/client";
+import { useApiData } from "../hooks/useApiData";
 import { todayISO } from "../utils/invoiceUtils";
 import { formatDuration, formatRate } from "../utils/serviceUtils";
 import {
@@ -17,21 +20,28 @@ const emptyBooking = { date: "", time: "", address: "", notes: "" };
 
 function BookServicePage() {
   const { serviceId } = useParams();
-  const { user } = useAuth();
-
-  const { services, bookings, dispatch } = useData();
   const location = useLocation();
+
+  const loadService = useCallback(
+    (signal) => servicesApi.get(serviceId, signal),
+    [serviceId]
+  );
+  const { data: service, loading, error, reload } = useApiData(loadService);
+
   const [values, setValues] = useState({
     ...emptyBooking,
     notes: (location.state?.notes ?? "").slice(0, NOTES_MAX),
   });
-
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState(null);
 
-  const service = services.find((item) => item.id === serviceId);
+  if (loading) {
+    return <LoadingState message="Loading service..." />;
+  }
 
-  if (!service || !service.active) {
+  if (error?.status === 404) {
     return (
       <div className="card border-0 shadow-sm">
         <EmptyState
@@ -46,6 +56,10 @@ function BookServicePage() {
     );
   }
 
+  if (error) {
+    return <ErrorState message={error.message} onRetry={reload} />;
+  }
+
   function handleChange(e) {
     const { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -55,11 +69,13 @@ function BookServicePage() {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
+    // Quick checks in the browser. The server checks everything again,
+    // including double-booking, which only it can see.
     const newErrors = validateBooking(values, {
-      bookings,
+      bookings: [],
       durationMinutes: service.durationMinutes,
     });
     if (Object.keys(newErrors).length > 0) {
@@ -67,25 +83,29 @@ function BookServicePage() {
       return;
     }
 
-    const booking = {
-      id: crypto.randomUUID(),
-      userId: user.id,
-      customerName: user.name,
-      customerEmail: user.email,
-      serviceId: service.id,
-      serviceName: service.name,
-      unit: service.unit,
-      rate: service.rate,
-      durationMinutes: service.durationMinutes,
-      scheduledAt: toScheduledAt(values.date, values.time),
-      address: values.address.trim(),
-      notes: values.notes.trim(),
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
+    setSubmitting(true);
+    setServerError(null);
 
-    dispatch({ type: "ADD", collection: "bookings", item: booking });
-    setConfirmedBooking(booking);
+    try {
+      const booking = await bookingsApi.create({
+        serviceId: service.id,
+        scheduledAt: toScheduledAt(values.date, values.time),
+        address: values.address.trim(),
+        notes: values.notes.trim(),
+      });
+      setConfirmedBooking(booking);
+    } catch (err) {
+      if (err.status === 409) {
+        setErrors({ time: err.message });
+      } else if (err.details.length > 0) {
+        const fieldErrors = detailsToErrors(err.details);
+        setErrors({ ...fieldErrors, time: fieldErrors.scheduledAt });
+      } else {
+        setServerError(err.message);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (confirmedBooking) {
@@ -126,6 +146,12 @@ function BookServicePage() {
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
               <h1 className="h4 mb-4">Book {service.name}</h1>
+
+              {serverError && (
+                <div className="alert alert-danger py-2 small" role="alert">
+                  {serverError}
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} noValidate>
                 <div className="row g-3 mb-3">
@@ -210,8 +236,12 @@ function BookServicePage() {
                   )}
                 </div>
 
-                <button type="submit" className="btn btn-primary w-100">
-                  Request booking
+                <button
+                  type="submit"
+                  className="btn btn-primary w-100"
+                  disabled={submitting}
+                >
+                  {submitting ? "Sending request..." : "Request booking"}
                 </button>
               </form>
             </div>
