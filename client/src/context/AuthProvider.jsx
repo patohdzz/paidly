@@ -1,67 +1,64 @@
 import { useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
-
-const AUTH_STORAGE_KEY = "paidly-user";
-
-// TEMPORARY: until the backend exists, this email logs in as an admin.
-const DEMO_ADMIN_EMAIL = "admin@paidly.com";
-
-function loadSavedUser() {
-  try {
-    const saved = localStorage.getItem(AUTH_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : null;
-  } catch {
-    return null;
-  }
-}
-
-function nameFromEmail(email) {
-  const beforeAt = email.split("@")[0];
-  return beforeAt.charAt(0).toUpperCase() + beforeAt.slice(1);
-}
+import { authApi } from "../api/paidlyApi";
+import { getToken, setToken } from "../api/client";
 
 function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadSavedUser);
+  const [user, setUser] = useState(null);
+  // If a token was saved, we must ask the server who it belongs to first.
+  const [isCheckingAuth, setIsCheckingAuth] = useState(() => getToken() !== null);
 
+  // On page load: turn a saved token back into a logged-in user.
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    }
-  }, [user]);
+    if (!getToken()) return;
 
-  // TEMPORARY: fake login. Will call POST /api/auth/login later.
-  async function login({ email }) {
-    const cleanEmail = email.trim().toLowerCase();
+    let active = true;
 
-    const loggedInUser = {
-      id: `user-${cleanEmail}`,
-      name: nameFromEmail(cleanEmail),
-      email: cleanEmail,
-      role: cleanEmail === DEMO_ADMIN_EMAIL ? "admin" : "customer",
+    authApi
+      .me()
+      .then(({ user: savedUser }) => {
+        if (active) setUser(savedUser);
+      })
+      .catch((error) => {
+        if (active && error.status === 401) setToken(null);
+      })
+      .finally(() => {
+        if (active) setIsCheckingAuth(false);
+      });
+
+    return () => {
+      active = false;
     };
+  }, []);
 
+  // If any request says our token is no longer valid, log out.
+  useEffect(() => {
+    function handleUnauthorized() {
+      setToken(null);
+      setUser(null);
+    }
+
+    window.addEventListener("paidly:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("paidly:unauthorized", handleUnauthorized);
+  }, []);
+
+  async function login({ email, password }) {
+    const { token, user: loggedInUser } = await authApi.login({ email, password });
+    setToken(token);
     setUser(loggedInUser);
     return loggedInUser;
   }
 
-  // TEMPORARY: fake register. Will call POST /api/auth/register later.
-  async function register({ name, email }) {
-           const cleanEmail = email.trim().toLowerCase();
-
-    const newUser = {
-      id: `user-${cleanEmail}`,
-      name: name.trim(),
-      email: cleanEmail,
-      role: "customer",
-    };
-
+  async function register({ name, email, password }) {
+    const { token, user: newUser } = await authApi.register({ name, email, password });
+    setToken(token);
     setUser(newUser);
     return newUser;
   }
 
+  // JWTs are stateless: logging out just means forgetting the token.
   function logout() {
+    setToken(null);
     setUser(null);
   }
 
@@ -69,6 +66,7 @@ function AuthProvider({ children }) {
     user,
     isLoggedIn: user !== null,
     isAdmin: user?.role === "admin",
+    isCheckingAuth,
     login,
     register,
     logout,

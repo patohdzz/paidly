@@ -7,12 +7,13 @@ const emptyLogin = { email: "", password: "" };
 
 function LoginPage() {
   const navigate = useNavigate();
-
-  const { login } = useAuth();
   const location = useLocation();
+  const { login } = useAuth();
 
   const [values, setValues] = useState(emptyLogin);
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -32,9 +33,17 @@ function LoginPage() {
       return;
     }
 
-    const loggedInUser = await login(values);
-    const defaultPage = loggedInUser.role === "admin" ? "/" : "/services";
-    navigate(location.state?.from ?? defaultPage, { replace: true });
+    setSubmitting(true);
+    setServerError(null);
+
+    try {
+      const loggedInUser = await login(values);
+      const defaultPage = loggedInUser.role === "admin" ? "/admin/bookings" : "/services";
+      navigate(location.state?.from ?? defaultPage, { replace: true });
+    } catch (error) {
+      setServerError(error.message);
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -43,6 +52,12 @@ function LoginPage() {
       <p className="text-secondary small mb-4">
         Welcome back. Log in to book and manage your repairs.
       </p>
+
+      {serverError && (
+        <div className="alert alert-danger py-2 small" role="alert">
+          {serverError}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="mb-3">
@@ -58,9 +73,7 @@ function LoginPage() {
             value={values.email}
             onChange={handleChange}
           />
-          {errors.email && (
-            <div className="invalid-feedback">{errors.email}</div>
-          )}
+          {errors.email && <div className="invalid-feedback">{errors.email}</div>}
         </div>
 
         <div className="mb-4">
@@ -81,8 +94,8 @@ function LoginPage() {
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary w-100">
-          Log in
+        <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
+          {submitting ? "Logging in..." : "Log in"}
         </button>
       </form>
 

@@ -1,15 +1,15 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import DashboardPage from "./DashboardPage";
+import LoadingState from "../components/LoadingState";
 
 function HomePage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isCheckingAuth } = useAuth();
 
-  if (isAdmin) {
-    return <DashboardPage />;
+  if (isCheckingAuth) {
+    return <LoadingState />;
   }
 
-  return <Navigate to="/services" replace />;
+  return <Navigate to={isAdmin ? "/admin/bookings" : "/services"} replace />;
 }
 
 export default HomePage;

@@ -3,8 +3,8 @@ import Layout from "./components/Layout";
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
-import InvoicesPage from "./pages/InvoicesPage";
-import ClientsPage from "./pages/ClientsPage";
+// import InvoicesPage from "./pages/InvoicesPage";
+// import ClientsPage from "./pages/ClientsPage";
 import ServicesPage from "./pages/ServicesPage";
 import BrowseServicesPage from "./pages/BrowseServicesPage";
 import ServiceDetailsPage from "./pages/ServiceDetailsPage";
@@ -39,8 +39,8 @@ function App() {
 
         {/* Admin-only pages */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="invoices" element={<InvoicesPage />} />
-          <Route path="clients" element={<ClientsPage />} />
+          {/* <Route path="invoices" element={<InvoicesPage />} />
+          <Route path="clients" element={<ClientsPage />} /> */}
           <Route path="admin/services" element={<ServicesPage />} />
           <Route path="admin/bookings" element={<AdminBookingsPage />} />
         </Route>

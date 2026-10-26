@@ -1,15 +1,26 @@
+import { useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
-import { useData } from "../hooks/useData";
+import ErrorState from "../components/ErrorState";
+import LoadingState from "../components/LoadingState";
+import { servicesApi } from "../api/paidlyApi";
+import { useApiData } from "../hooks/useApiData";
 import { formatDuration, formatRate } from "../utils/serviceUtils";
 
 function ServiceDetailsPage() {
   const { serviceId } = useParams();
-  const { services } = useData();
 
-  const service = services.find((item) => item.id === serviceId);
+  const loadService = useCallback(
+    (signal) => servicesApi.get(serviceId, signal),
+    [serviceId]
+  );
+  const { data: service, loading, error, reload } = useApiData(loadService);
 
-  if (!service || !service.active) {
+  if (loading) {
+    return <LoadingState message="Loading service..." />;
+  }
+
+  if (error?.status === 404) {
     return (
       <div className="card border-0 shadow-sm">
         <EmptyState
@@ -22,6 +33,10 @@ function ServiceDetailsPage() {
         </EmptyState>
       </div>
     );
+  }
+
+  if (error) {
+    return <ErrorState message={error.message} onRetry={reload} />;
   }
 
   const isHourly = service.unit === "hr";
@@ -60,9 +75,7 @@ function ServiceDetailsPage() {
                 <dd className="fs-4 fw-semibold mb-3">{formatRate(service)}</dd>
 
                 <dt className="small text-muted fw-normal">Typical duration</dt>
-                <dd className="mb-0">
-                  About {formatDuration(service.durationMinutes)}
-                </dd>
+                <dd className="mb-0">About {formatDuration(service.durationMinutes)}</dd>
               </dl>
 
               {isHourly && (
@@ -71,10 +84,7 @@ function ServiceDetailsPage() {
                 </p>
               )}
 
-              <Link
-                to={`/services/${service.id}/book`}
-                className="btn btn-primary w-100"
-              >
+              <Link to={`/services/${service.id}/book`} className="btn btn-primary w-100">
                 Book this service
               </Link>
             </div>

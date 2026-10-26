@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { detailsToErrors } from "../api/client";
 import { PASSWORD_MIN, validateRegister } from "../utils/authUtils";
 
 const emptyRegister = {
@@ -30,11 +31,12 @@ const fields = [
 
 function RegisterPage() {
   const navigate = useNavigate();
-
   const { register } = useAuth();
 
   const [values, setValues] = useState(emptyRegister);
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -54,8 +56,22 @@ function RegisterPage() {
       return;
     }
 
-    await register(values);
-    navigate("/services");
+    setSubmitting(true);
+    setServerError(null);
+
+    try {
+      await register(values);
+      navigate("/services", { replace: true });
+    } catch (error) {
+      if (error.status === 409) {
+        setErrors({ email: error.message });
+      } else if (error.details.length > 0) {
+        setErrors(detailsToErrors(error.details));
+      } else {
+        setServerError(error.message);
+      }
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -64,6 +80,12 @@ function RegisterPage() {
       <p className="text-secondary small mb-4">
         Sign up to book repairs and get instant AI estimates.
       </p>
+
+      {serverError && (
+        <div className="alert alert-danger py-2 small" role="alert">
+          {serverError}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} noValidate>
         {fields.map((field) => (
@@ -88,8 +110,8 @@ function RegisterPage() {
           </div>
         ))}
 
-        <button type="submit" className="btn btn-primary w-100 mt-2">
-          Create account
+        <button type="submit" className="btn btn-primary w-100 mt-2" disabled={submitting}>
+          {submitting ? "Creating account..." : "Create account"}
         </button>
       </form>
 
