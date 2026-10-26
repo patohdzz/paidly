@@ -2,12 +2,15 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import mongoose from "mongoose";
+import aiRoutes from "./routes/aiRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
-import aiRoutes from "./routes/aiRoutes.js";
 
 const app = express();
+
+// Render/Vercel sit behind a proxy: trust it so rate limiting sees real user IPs.
+app.set("trust proxy", 1);
 
 // 1. Security headers on every response
 app.use(helmet());
