@@ -1,9 +1,37 @@
-body {
-  background-color: #f5f6fa;
+:root {
+  --bs-body-font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --bs-body-bg: #f5f7fb;
+  --bs-border-radius: 0.6rem;
 }
 
+body {
+  background-color: #f5f7fb;
+  color: #1f2937;
+}
+
+/* Softer, rounder cards everywhere */
+.card {
+  --bs-card-border-radius: 1rem;
+  --bs-card-inner-border-radius: 1rem;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Sidebar */
 .sidebar {
   width: 240px;
+  background: linear-gradient(180deg, #111827 0%, #1f2937 100%) !important;
+}
+
+.sidebar .nav-link {
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.85rem;
+}
+
+.sidebar .nav-link.link-light:hover {
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .layout-main {
@@ -16,6 +44,63 @@ body {
 
 .booking-success {
   max-width: 520px;
+}
+
+/* Browse page hero banner */
+.hero {
+  background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%);
+  box-shadow: 0 10px 30px rgba(13, 110, 253, 0.25);
+}
+
+.hero-subtitle {
+  opacity: 0.85;
+  max-width: 560px;
+}
+
+.hero-icon {
+  font-size: 8rem;
+  opacity: 0.3;
+}
+
+.browse-search {
+  width: 100%;
+  max-width: 340px;
+}
+
+/* Service pictures (icons) */
+.service-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.service-card {
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12) !important;
+}
+
+.service-card-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.25rem 1.25rem 0.75rem;
+}
+
+.service-card-banner .service-icon {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.category-chip {
+  padding-left: 0.9rem;
+  padding-right: 0.9rem;
 }
 
 /* Phones: the sidebar slides in from the left when the menu is open */
@@ -33,6 +118,10 @@ body {
 
   .sidebar.open {
     transform: translateX(0);
+  }
+
+  .browse-search {
+    max-width: none;
   }
 }
 

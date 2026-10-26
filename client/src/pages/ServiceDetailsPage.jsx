@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
+import ServiceIcon from "../components/ServiceIcon";
 import { servicesApi } from "../api/paidlyApi";
 import { useApiData } from "../hooks/useApiData";
 import { formatDuration, formatRate } from "../utils/serviceUtils";
@@ -51,18 +52,32 @@ function ServiceDetailsPage() {
         <div className="col-12 col-lg-8">
           <div className="card border-0 shadow-sm h-100">
             <div className="card-body p-4">
-              <span className="badge bg-primary-subtle text-primary-emphasis mb-2">
-                {service.category}
-              </span>
-              <h1 className="h3 mb-3">{service.name}</h1>
+              <div className="d-flex align-items-center gap-3 mb-3">
+                <ServiceIcon name={service.name} category={service.category} size={72} />
+                <div>
+                  <span className="badge bg-primary-subtle text-primary-emphasis mb-1">
+                    {service.category}
+                  </span>
+                  <h1 className="h3 fw-bold mb-0">{service.name}</h1>
+                </div>
+              </div>
               <p className="text-secondary mb-4">{service.description}</p>
 
-              <h2 className="h6 fw-semibold">How it works</h2>
-              <ol className="text-secondary small mb-0">
-                <li>Pick a date and time that works for you.</li>
-                <li>We review and confirm your booking.</li>
-                <li>A technician arrives and completes the job.</li>
-              </ol>
+              <h2 className="h6 fw-semibold mb-3">How it works</h2>
+              <ul className="list-unstyled small text-secondary mb-0 d-grid gap-2">
+                <li>
+                  <i className="bi bi-calendar-check text-primary me-2" aria-hidden="true" />
+                  Pick a date and time that works for you.
+                </li>
+                <li>
+                  <i className="bi bi-shield-check text-primary me-2" aria-hidden="true" />
+                  We review and confirm your booking.
+                </li>
+                <li>
+                  <i className="bi bi-tools text-primary me-2" aria-hidden="true" />
+                  A technician arrives and completes the job.
+                </li>
+              </ul>
             </div>
           </div>
         </div>

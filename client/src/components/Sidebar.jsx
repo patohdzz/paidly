@@ -2,11 +2,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
-  { label: "Browse Services", to: "/services", roles: ["guest", "customer", "admin"] },
-  { label: "AI Quote", to: "/quote", roles: ["guest", "customer"] },
-  { label: "My Bookings", to: "/my/bookings", roles: ["customer"] },
-  { label: "Bookings", to: "/admin/bookings", roles: ["admin"] },
-  { label: "Manage Services", to: "/admin/services", roles: ["admin"] },
+  { label: "Browse Services", to: "/services", icon: "bi-grid", roles: ["guest", "customer", "admin"] },
+  { label: "AI Quote", to: "/quote", icon: "bi-stars", roles: ["guest", "customer"] },
+  { label: "My Bookings", to: "/my/bookings", icon: "bi-calendar-check", roles: ["customer"] },
+  { label: "Bookings", to: "/admin/bookings", icon: "bi-clipboard-check", roles: ["admin"] },
+  { label: "Manage Services", to: "/admin/services", icon: "bi-gear", roles: ["admin"] },
 ];
 
 function Sidebar({ isOpen, onClose }) {
@@ -34,6 +34,7 @@ function Sidebar({ isOpen, onClose }) {
           className="fs-4 fw-bold px-2 text-white text-decoration-none"
           onClick={onClose}
         >
+          <i className="bi bi-house-gear-fill text-primary me-2" aria-hidden="true" />
           Paidly
         </Link>
         <button
@@ -55,6 +56,7 @@ function Sidebar({ isOpen, onClose }) {
                   `nav-link ${isActive ? "active" : "link-light"}`
                 }
               >
+                <i className={`bi ${item.icon} me-2`} aria-hidden="true" />
                 {item.label}
               </NavLink>
             </li>

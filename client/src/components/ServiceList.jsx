@@ -1,3 +1,4 @@
+import ServiceIcon from "./ServiceIcon";
 import { formatDuration, formatRate } from "../utils/serviceUtils";
 
 function ServiceList({ services, onEdit, onDelete }) {
@@ -23,13 +24,18 @@ function ServiceList({ services, onEdit, onDelete }) {
           {services.map((service) => (
             <tr key={service.id}>
               <td>
-                <div className="fw-semibold">
-                  {service.name}
-                  {!service.active && (
-                    <span className="badge text-bg-secondary ms-2">Inactive</span>
-                  )}
+                <div className="d-flex align-items-center gap-3">
+                  <ServiceIcon name={service.name} category={service.category} size={40} />
+                  <div>
+                    <div className="fw-semibold">
+                      {service.name}
+                      {!service.active && (
+                        <span className="badge text-bg-secondary ms-2">Inactive</span>
+                      )}
+                    </div>
+                    <div className="small text-muted">{service.category}</div>
+                  </div>
                 </div>
-                <div className="small text-muted">{service.category}</div>
               </td>
               <td className="d-none d-md-table-cell text-nowrap">
                 {formatDuration(service.durationMinutes)}

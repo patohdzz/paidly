@@ -1,3 +1,4 @@
+import ServiceIcon from "./ServiceIcon";
 import StatusBadge from "./StatusBadge";
 import { formatDuration, formatRate } from "../utils/serviceUtils";
 import { canChangeBooking, formatDateTime } from "../utils/bookingUtils";
@@ -8,13 +9,22 @@ function BookingCard({ booking, onReschedule, onCancel }) {
   return (
     <div className="card border-0 shadow-sm">
       <div className="card-body">
-        <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
-          <h2 className="h6 fw-semibold mb-0">{booking.serviceName}</h2>
+        <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+          <div className="d-flex align-items-center gap-3">
+            <ServiceIcon name={booking.serviceName} size={44} />
+            <h2 className="h6 fw-semibold mb-0">{booking.serviceName}</h2>
+          </div>
           <StatusBadge status={booking.status} />
         </div>
 
-        <div className="fw-medium mb-1">{formatDateTime(booking.scheduledAt)}</div>
-        <div className="small text-secondary mb-1">{booking.address}</div>
+        <div className="fw-medium mb-1">
+          <i className="bi bi-calendar-event me-2 text-primary" aria-hidden="true" />
+          {formatDateTime(booking.scheduledAt)}
+        </div>
+        <div className="small text-secondary mb-1">
+          <i className="bi bi-geo-alt me-2" aria-hidden="true" />
+          {booking.address}
+        </div>
         <div className="small text-muted">
           {formatRate(booking)} &middot; about{" "}
           {formatDuration(booking.durationMinutes)}

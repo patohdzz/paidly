@@ -4,6 +4,7 @@ function AuthLayout() {
   return (
     <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center px-3 py-5">
       <Link to="/services" className="fs-3 fw-bold text-dark text-decoration-none mb-4">
+        <i className="bi bi-house-gear-fill text-primary me-2" aria-hidden="true" />
         Paidly
       </Link>
 

@@ -14,6 +14,7 @@ function Layout() {
       {/* Top bar: only on phones (hidden from md and up) */}
       <header className="d-md-none bg-dark text-white px-3 py-2 d-flex align-items-center justify-content-between sticky-top">
         <Link to="/" className="fs-5 fw-bold text-white text-decoration-none">
+          <i className="bi bi-house-gear-fill text-primary me-2" aria-hidden="true" />
           Paidly
         </Link>
         <button
