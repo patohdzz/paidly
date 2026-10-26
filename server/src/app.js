@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/ai", aiRoutes);
 
 // 404: runs only if no route above matched
 app.use((req, res) => {
