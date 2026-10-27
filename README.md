@@ -5,6 +5,7 @@ Paidly is a full-stack web app for booking home repair and handyman services. Cu
 - **Live app:** https://paidly-henna.vercel.app
 - **Backend API:** https://paidly-api-4yu7.onrender.com/api/health
 - **Repository:** https://github.com/patohdzz/paidly
+- **Documentation:** [Capstone documentation (PDF)](docs/Paidly_Capstone_Documentation.pdf)
 
 > The backend runs on Render's free plan, so the first request after a period of inactivity can take up to a minute while the server wakes up.
 
