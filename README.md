@@ -28,7 +28,7 @@ Homeowners often don't know which repair service they need or what it will cost,
 
 ## AI-powered feature: AI Quote Builder
 
-The customer types a description of the problem. The backend sends it to **Google Gemini** along with the list of active services (names and IDs only, no prices). Gemini must answer in a fixed JSON format and can only choose service IDs from that list.
+The customer types a description of the problem. The backend sends it to **Google Gemini** along with the list of active services (names and short service keys only, no prices). Gemini must answer in a fixed JSON format and can only choose service IDs from that list; the server maps each key back to the real service ID.
 
 The server then builds the estimate itself:
 

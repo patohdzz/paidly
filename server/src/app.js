@@ -53,6 +53,11 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ error: "Invalid JSON in request body" });
   }
 
+  // Body bigger than the 10 KB limit set on express.json()
+  if (err.type === "entity.too.large") {
+    return res.status(413).json({ error: "Request is too large" });
+  }
+
   // Mongoose schema rules failed
   if (err.name === "ValidationError") {
     const details = Object.values(err.errors).map((e) => ({

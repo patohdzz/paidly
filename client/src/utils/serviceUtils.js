@@ -1,4 +1,4 @@
-import { formatCurrency } from "./invoiceUtils";
+import { formatCurrency } from "./formatUtils";
 
 export const unitOptions = [
   { value: "hr", label: "Per hour" },
@@ -14,12 +14,6 @@ const unitSuffix = {
 
 export function formatRate(service) {
   return `${formatCurrency(service.rate)} ${unitSuffix[service.unit] ?? ""}`.trim();
-}
-
-export function countServiceUsage(invoices, serviceId) {
-  return invoices.filter((invoice) =>
-    invoice.lineItems.some((item) => item.serviceId === serviceId)
-  ).length;
 }
 
 // official list of categories

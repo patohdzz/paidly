@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { todayISO } from "../utils/invoiceUtils";
+import { todayISO } from "../utils/formatUtils";
 import {
   timeSlotOptions,
   toDateInput,

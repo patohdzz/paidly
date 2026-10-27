@@ -6,7 +6,7 @@ import LoadingState from "../components/LoadingState";
 import { bookingsApi, servicesApi } from "../api/paidlyApi";
 import { detailsToErrors } from "../api/client";
 import { useApiData } from "../hooks/useApiData";
-import { todayISO } from "../utils/invoiceUtils";
+import { todayISO } from "../utils/formatUtils";
 import { formatDuration, formatRate } from "../utils/serviceUtils";
 import {
   NOTES_MAX,

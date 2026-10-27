@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { formatCurrency } from "../utils/invoiceUtils";
+import { formatCurrency } from "../utils/formatUtils";
 import { formatRate } from "../utils/serviceUtils";
 
 function QuoteResult({ summary, estimate, source, disclaimer, description }) {
